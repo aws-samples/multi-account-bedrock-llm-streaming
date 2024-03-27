@@ -38,6 +38,9 @@ To get started with this solution, follow these steps:
 4. Run the notebook to test the integration and interact with the Invoke Lambda APIs from the client account. You will receive the streaming response payloads from cross account Large Language Models. 
 
 
+## Private access within VPC
+
+
 ## Security
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
