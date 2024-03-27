@@ -39,7 +39,10 @@ The requests invoke the ML account's lambda at us-east-1. As all resources are i
 ### From the Application Lambda or SageMaker Notebook within the Application Account at ap-southeast-1 
 The requests invoke the ML account's lambda at us-east-1. As all resources are inside private subnet of Application account at different region, we leverage VPC peering or TGW to route request traffics from ap-southeast-1 VPC to us-east-1 VPC. Lambda VPC endpoint at us-east-1  faciliate the communication and access control to invoke ML lambda for Bedrock service.
 
-3. **Data Processing**: The Customer Lambda in the Application Account processes the invocation and interacts with the Bedrock service through the VPC's PrivateLink.
+3. **DNS Resolve**: 
+![Diagram](./images/sts-endpoint-1.png "STS VPC endpoint")
+
+.
 4. **Networking**: All networking between the different components is secure and private, facilitated by the use of ENIs and VPC endpoints.
 5. **Logging and Monitoring**: Actions and data flows are logged via CloudTrail, and operational health can be monitored and alerted on through CloudWatch.
 
