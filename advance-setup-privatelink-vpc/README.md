@@ -29,17 +29,21 @@ With AWS PrivateLink you can link your own VPCs, on-premise networks, and suppor
 ## Architecture Illustration
 [Insert your architecture diagram or image here]
 
-1. **Cross-Account Access**: In order to let the incoming requests from Application account to execute the ML Lambda and invoke Bedrock service at ML account, we use IAM Assume Role and STS, the Application Lambda or SageMaker notebook assumes a role with necessary permissions to perform actions in the ML Account while traffic flows through the STS VPC endpoint sitting at us-east-1 region inside Application account. Cross-account PrivateLink must be happening within the same region. Therefore, both STS and Lambda VPC endpoints are set up at us-east-1.
+### 1. **Cross-Account Access** 
+In order to let the incoming requests from Application account to execute the ML Lambda and invoke Bedrock service at us-east-1 under ML account, we use IAM and STS to assume role. The Application Lambda or SageMaker notebook assumes a role with necessary permissions to perform Lambda invoke action in the ML Account. Due to the requirement that Cross-account PrivateLink must be happening within the same region, both STS and Lambda VPC endpoints are set up at us-east-1.
 
-2. **Invocation**: 
+### 2. **Invocation**: 
 
-### From the Application Lambda or SageMaker Notebook within the Application Account at us-east-1 
-The requests invoke the ML account's lambda at us-east-1. As all resources are inside private subnet of Application account, we leverage Lambda VPC endpoint at us-east-1 to faciliate the communication and access control. 
+#### From the Application Lambda or SageMaker Notebook within the Application Account at us-east-1 
+The request will invoke ML account's lambda at us-east-1. As the requester is sitting at private subnet under Application account, we leverage Lambda VPC endpoint at us-east-1 to faciliate the communication and access control from VPC to Lambda service. Once the request reaches the Lambda at ML account, it will invoke the Bedrock service through Bedrock VPC endpoint.
 
-### From the Application Lambda or SageMaker Notebook within the Application Account at ap-southeast-1 
-The requests invoke the ML account's lambda at us-east-1. As all resources are inside private subnet of Application account at different region, we leverage VPC peering or TGW to route request traffics from ap-southeast-1 VPC to us-east-1 VPC. Lambda VPC endpoint at us-east-1  faciliate the communication and access control to invoke ML lambda for Bedrock service.
+#### From the Application Lambda or SageMaker Notebook within the Application Account at ap-southeast-1 
+The request will invoke  ML account's lambda at us-east-1. As the requester is sitting at private subnet of Application account outside of us-east-1 region, we need to send the request traffics from ap-southeast-1 to VPC endpoints located at us-east-1 through VPC peering or TGW. Once the request reaches the Lambda at ML account, it will invoke the Bedrock service through Bedrock VPC endpoint.
 
-3. **DNS Resolve**: 
+### 3. **DNS Resolve**: 
+In order to share Application account VPC endpoints provisioned at us-east-1 to VPCs at other regions, we use Private Hosted Zone (PHZ).
+
+First we need to disable DNS at STS VPC endpoint and Lambda VPC endpoint at us-east-1. 
 ![Diagram](./images/sts-endpoint-1.png "STS VPC endpoint")
 
 .
