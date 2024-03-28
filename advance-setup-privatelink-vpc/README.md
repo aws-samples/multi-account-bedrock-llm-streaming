@@ -41,14 +41,27 @@ The request will invoke ML account's lambda at us-east-1. As the requester is si
 The request will invoke  ML account's lambda at us-east-1. As the requester is sitting at private subnet of Application account outside of us-east-1 region, we need to send the request traffics from ap-southeast-1 to VPC endpoints located at us-east-1 through VPC peering or TGW. Once the request reaches the Lambda at ML account, it will invoke the Bedrock service through Bedrock VPC endpoint.
 
 ### 3. **DNS Resolve**: 
-In order to share Application account VPC endpoints provisioned at us-east-1 to VPCs at other regions, we use Private Hosted Zone (PHZ).
+Since cross-account PrivateLink must be happening within same region, all VPC endpoints involved invoking ML Account Lambda and Bedrock service must be at us-east-1 in our example. In order to share Application account VPC endpoints provisioned at us-east-1 to other VPCs of Application account at other regions, we use Private Hosted Zone (PHZ).
 
 First we need to disable DNS at STS VPC endpoint and Lambda VPC endpoint at us-east-1. 
+
 ![Diagram](./images/sts-endpoint-1.png "STS VPC endpoint")
 
-.
-4. **Networking**: All networking between the different components is secure and private, facilitated by the use of ENIs and VPC endpoints.
-5. **Logging and Monitoring**: Actions and data flows are logged via CloudTrail, and operational health can be monitored and alerted on through CloudWatch.
+![Diagram](./images/modify-dns-setting.png "Modify DNS Setting")
+
+We create Private Hosted Zones for sts.us-east-1.amazonaws.com and lambda.us-east-1.amazonaws.com and route traffic to corresponding vpc endpoints at us-east-1 region.
+
+![Diagram](./images/create-PHZ-record.png "Create PHZ records")
+
+Then we associate each PHZ with VPCs in any region including us-east-1 at Application account that want to invoke Bedrock service at ML account.
+
+![Diagram](./images/hosted-zone-associate.png "PHZ VPC association")
+
+After completing the PHZ setup, all Application account resources in private subnets of those VPCs will forward STS and Lambda invoke traffics to VPC endpoints at us-east-1 according to the settings of PHZ.
+
+4. **Networking**: In order to route traffics from different Application Account VPCs to its VPC at us-east-1 for accessing STS and Lambda service, VPC peering or Transit Gateway would be needed to handle traffic routings.
+
+5. **Logging and Monitoring**: Traffics are  to be routed via ENI and VPC endpoints among private subnets. They can be recorded in VPC FlowLog at VPC setting and DNS Log at Route 53.
 
 
 ## Getting Started
