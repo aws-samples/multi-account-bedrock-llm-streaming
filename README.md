@@ -21,7 +21,7 @@ The solution relies on the following components:
 
 ## Architecture Illustration
 
-![Diagram](./diagrams/Cross-Account-Global-infra.png "Cross account Global Infra architecture")
+![Diagram](./diagrams/Cross-Account-Global-Infra.png "Cross account Global Infra architecture")
 
 The architecture diagram above illustrates the interaction between the client account and the Bedrock account. The client account uses the cross-account role to authenticate and access the Bedrock APIs through the adapter layer (AWS Lambda) in the Bedrock account. This setup allows for a seamless and secure integration between the two accounts.
 
