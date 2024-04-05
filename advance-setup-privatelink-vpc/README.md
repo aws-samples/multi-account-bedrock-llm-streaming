@@ -33,6 +33,16 @@ With AWS PrivateLink you can link your own VPCs, on-premise networks, and suppor
 ### 1. **Cross-Account Access** 
 In order to let the incoming requests from Application account to execute the ML Lambda and invoke Bedrock service at us-east-1 under ML account, we use IAM and STS to assume role. The Application Lambda or SageMaker notebook assumes a role with necessary permissions to perform Lambda invoke action in the ML Account. Due to the requirement that Cross-account PrivateLink must be happening within the same region, both STS and Lambda VPC endpoints are set up at us-east-1.
 
+To successfully assume-role from Application account to ML account, you need to define a customer inline policy (my example: account-a-account-b-inline-policy) to assume the ML account's role (my example: account-a-account-b-assume-role).
+
+![Diagram](./images/app-acct-IAM-role-for-assume-role.png "App account assume role inline policy")
+
+At the ML account role (account-a-account-b-assume-role), we need to invoke Lambda, so we need to at least include Lambda Invoke privilege. Besides, we need to define the Trust relationships to allow Application account to assume this role.
+
+![Diagram](./images/ml-acct-IAM-role-being-assume-role.png "ML account role to be assumed")
+
+![Diagram](./images/ml-acct-cross-account-role-trust-relationship.png "AMLpp account assume role trust relationships")
+
 ### 2. **Invocation**: 
 
 #### From the Application Lambda or SageMaker Notebook within the Application Account at us-east-1 
